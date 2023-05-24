@@ -29,78 +29,39 @@ public class Main {
 
         deckardCain.sayHello();
         akara.sayHello();
+
         int monsterIndex;
-        while(Monsters.monstersHealth > 0 || villagersAlive == 0) {
-            Villager villager;
+        while(Monsters.monstersHealth > 0 && villagersAlive > 0) {
+            int maxAttackers = (j % 4 == 0) ? 1 : 2;
 
-            if(j % 4 == 0){
-                do {
-                    villager = arrayVillagers.get(random.nextInt(villagersAlive));
-                } while (villager.isDead());
-                System.out.println("Aktualnie walczacy osadnik to " + villager.getName());
-                monsterIndex = random.nextInt(2);
-                if(monsterIndex == 1 && Monsters.andariel.getHealth() > 0){
-                    villager.attack(Monsters.andariel);
-                }
-                else if(monsterIndex == 0 && Monsters.blacksmith.getHealth() > 0){
-                    villager.attack(Monsters.blacksmith);
-                }
-            }
-            else{
-                for(int i = 0; i < 2; i++) {
-                    do {
-                        villager = arrayVillagers.get(random.nextInt(villagersAlive));
-                    } while (villager.isDead());
+            for(int i = 0; i < maxAttackers; i++) {
+                Villager villager = getLivingVillager(arrayVillagers);
+                Monster targetMonster = getLivingMonster();
+                if(targetMonster != null && villager != null){
+                    villager.attack(targetMonster);
                     System.out.println("Aktualnie walczacy osadnik to " + villager.getName());
-                    monsterIndex = random.nextInt(2);
-                    if(monsterIndex == 1 && Monsters.andariel.getHealth() > 0){
-                        villager.attack(Monsters.andariel);
-                        if(Monsters.andariel.getHealth() <= 0){
-                            System.out.println("Andariel nie zyje");
 
-                        }
-                    }
-                    else if(monsterIndex == 0 && Monsters.blacksmith.getHealth() > 0){
-                        villager.attack(Monsters.blacksmith);
-                        if(Monsters.blacksmith.getHealth() <= 0){
-                            System.out.println("Blacksmith nie zyje");
-
-                        }
-                    }
-                }
-            }
-            for(int k = 0; k < 2; k++) {
-                do {
-                    monsterIndex = random.nextInt(2);
-                } while ((monsterIndex == 0 && Monsters.blacksmith.getHealth() > 0) && (monsterIndex == 1 && Monsters.andariel.getHealth() > 0));
-                if(monsterIndex == 1 && Monsters.andariel.getHealth() > 0){
-                    villager = arrayVillagers.get(random.nextInt(villagersAlive));
-                    Monsters.andariel.attack(villager);
-                    if(villager.getHealth() <= 0){
-                        System.out.println( villager.getName() + " nie zyje");
-                        arrayVillagers.remove(villager);
-                        arrayVillagers.add(villager);
-                        villagersAlive--;
-                    }
-                }
-                else if(monsterIndex == 0 && Monsters.blacksmith.getHealth() > 0){
-                    villager = arrayVillagers.get(random.nextInt(arrayVillagers.size()));
-                    Monsters.blacksmith.attack(villager);
-                    if(villager.getHealth() <= 0){
-                        System.out.println( villager.getName() + " nie zyje");
-                        arrayVillagers.remove(villager);
-                        arrayVillagers.remove(villager);
-                        arrayVillagers.add(villager);
-                        villagersAlive--;
-                    }
-                }
-                if(villagersAlive == 0){
-                    System.out.println("Osadnicy nie żyją.");
-                    return;
                 }
             }
 
+            for(int i = 0; i < 2; i++) {
+                Monster monster = getLivingMonster();
+                Villager targetVillager = getLivingVillager(arrayVillagers);
+                if(monster != null && targetVillager != null){
+                    monster.attack(targetVillager);
 
+                    if(targetVillager.getHealth() <= 0){
+                        System.out.println(targetVillager.getName() + " nie zyje");
+                        arrayVillagers.remove(targetVillager);
+                        villagersAlive--;
+                    }
+                }
+            }
+
+            if(villagersAlive == 0){
+                System.out.println("Osadnicy nie żyją.");
+                break;
+            }
 
             System.out.println("Potwory posiadaja jeszcze " + Monsters.monstersHealth + " punkty zycia");
             j++;
@@ -112,5 +73,27 @@ public class Main {
 
         deckardCain.sayHello();
         akara.sayHello();
+    }
+
+    private static Villager getLivingVillager(ArrayList<Villager> villagersAlive) {
+        Random random = new Random();
+        Villager vil;
+        int index;
+        do{
+            index = random.nextInt(villagersAlive.size());
+            vil = villagersAlive.get(index);
+        }while(vil.getHealth() <= 0);
+
+        return vil;
+    }
+
+    private static Monster getLivingMonster() {
+        Random random = new Random();
+        int index;
+        index = random.nextInt(2);
+        if(index == 0 && Monsters.andariel.getHealth() > 0)
+        return Monsters.andariel;
+        else
+            return Monsters.blacksmith;
     }
 }
